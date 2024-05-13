@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+package tutorial;
+
+message ImageAcquisition {
+
+  required int64 timestamp = 1;
+
+  message CameraSpecs {
+    optional string camera_spec_1 = 1;
+    optional int32 camera_spec_2 = 2;
+
+  }
+
+  optional CameraSpecs camera_specs = 2;
+  required string image_location = 3;
+}

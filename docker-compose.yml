@@ -1,0 +1,43 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: rabbit-1
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    networks:
+      - rabbitnet
+  
+  receiver:
+    build:
+      context: ./receiver
+      dockerfile: Dockerfile
+    container_name: receiver
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - rabbitnet
+    user: root
+    command: [python receiver.py"]
+
+  sender:
+    build:
+      context: ./sender
+      dockerfile: Dockerfile
+    container_name: sender
+    depends_on:
+      receiver:
+          condition: service_started
+    networks:
+      - rabbitnet
+    user: root
+
+networks:
+  rabbitnet:
+    driver: bridge
