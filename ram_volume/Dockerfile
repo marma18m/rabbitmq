@@ -4,10 +4,10 @@ WORKDIR /app
 
 RUN pip install --upgrade pip
 
-COPY sender/sender.py sender.py
+COPY ram_volume/ram_volume.py ram_volume.py
 COPY messages ./messages
-COPY sender/requirements.txt requirements.txt
+COPY ram_volume/requirements.txt requirements.txt
 
 RUN pip install -r requirements.txt
 
-CMD ["python3", "sender.py"]
+CMD ["python3", "ram_volume.py"]
