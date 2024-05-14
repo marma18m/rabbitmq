@@ -4,8 +4,9 @@ WORKDIR /app
 
 RUN pip install --upgrade pip
 
-COPY receiver.py receiver.py
-COPY requirements.txt requirements.txt
+COPY receiver/receiver.py receiver.py
+COPY messages ./messages
+COPY receiver/requirements.txt requirements.txt
 
 RUN pip install -r requirements.txt
 

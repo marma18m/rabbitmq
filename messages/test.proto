@@ -3,7 +3,7 @@ syntax = "proto2";
 package tutorial;
 
 message ImageAcquisition {
-
+// timestamp in unix time encoded into a 64 bit int
   required int64 timestamp = 1;
 
   message CameraSpecs {

@@ -1,4 +1,5 @@
 import pika, sys, os
+from messages.output import test_pb2
 
 
 def main():
@@ -11,7 +12,9 @@ def main():
 
     def callback(ch, method, properties, body):
         print("\nReceived: ")
-        print(body)
+        message = test_pb2.ImageAcquisition()
+        message.ParseFromString(body)
+        print("\nbody:\n ", message)
 
     channel.basic_consume(
         queue='test_queue', on_message_callback=callback, auto_ack=True

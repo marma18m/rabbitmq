@@ -4,8 +4,9 @@ WORKDIR /app
 
 RUN pip install --upgrade pip
 
-COPY sender.py sender.py
-COPY requirements.txt requirements.txt
+COPY sender/sender.py sender.py
+COPY messages ./messages
+COPY sender/requirements.txt requirements.txt
 
 RUN pip install -r requirements.txt
 
