@@ -1,40 +1,61 @@
 import pika, sys, os
+from schemas.message import MessageJSON
+from model_utils import predict_result
+import logging
+import json
+
+log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
 
 
 def main():
+    # RabbitMQ Connection
     connection = pika.BlockingConnection(
         pika.ConnectionParameters(host='rabbitmq')
     )
     channel = connection.channel()
 
-    ram_volume_queue = 'ram_volume_queue'
+    # Declare the queues
+    image_acq_queue = 'rimage_acquisition_queue'
     comms_queue = 'communications_queue'
-
     channel.queue_declare(queue=comms_queue)
-    channel.queue_declare(queue=ram_volume_queue)
+    channel.queue_declare(queue=image_acq_queue)
+
+    log.info('Queues declared')
 
     def model_callback(ch, method, properties, body):
-        print("\nReceived: ")
-        message = comms_pb2.ImageAcquisition()
-        message.ParseFromString(body)
+        log.info("Image received: ")
+        message = MessageJSON()
+        message.parse_from_string(body)
 
-        comms_message = comms_pb2.CommsMessage()
+        log.info("body:\n ", message)
 
-        print("\nbody:\n ", message)
+        # Predict result and set the info in the message
+        image_path = message["imageInfo"]["path"]
+        result, result_timestamp = predict_result(image_path)
+        result_path = f'/path/to/result/{result}'
+        comms_result_path = f'/path/to/comms/result/{result}'
+        message.set_result_info(
+            result_timestamp, result_path, comms_result_path
+        )
 
-        # Publish the received message to the other queue
+        # Serialize the message to a JSON formatted string
+        json_message = json.dumps(message.get_message())
+
+        # Publish the received message to the comms queue
         channel.basic_publish(
             exchange='',
-            routing_key=ram_volume_queue,
-            body=message.SerializeToString(),
+            routing_key=comms_queue,
+            body=json_message,
         )
-        print('Sent message to ' + ram_volume_queue)
+        log.info('Sent message to ' + image_acq_queue)
 
+    # Consume messages from the image_acquisition_queue
     channel.basic_consume(
-        queue=comms_queue, on_message_callback=model_callback, auto_ack=True
+        queue=image_acq_queue, on_message_callback=model_callback, auto_ack=True
     )
 
-    print(' [*] Waiting for messages. To exit press CTRL+C')
+    log.info(' [*] Waiting for messages. To exit press CTRL+C')
     channel.start_consuming()
 
 
