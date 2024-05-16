@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
+import json
 
 
 class MessageJSON:
@@ -37,7 +38,7 @@ class MessageJSON:
         resultTimestamp,
         resultPath,
         commsResultPath,
-        imageWithGraphicsPath,
+        imageWithGraphicsPath: Optional[str] = None,
     ):
         self.message["ResultInfo"]["resultTimestamp"] = resultTimestamp
         self.message["ResultInfo"]["resultPath"] = resultPath
@@ -48,6 +49,9 @@ class MessageJSON:
 
     def get_message(self):
         return self.message
+
+    def parse_from_string(self, string):
+        self.message = json.loads(string)
 
 
 class AcquisitionDevice(BaseModel):
