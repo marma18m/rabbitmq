@@ -16,10 +16,10 @@ def main():
     channel = connection.channel()
 
     # Declare the queues
-    image_acq_queue = 'rimage_acquisition_queue'
+    model_queue = 'model_queue'
     comms_queue = 'communications_queue'
     channel.queue_declare(queue=comms_queue)
-    channel.queue_declare(queue=image_acq_queue)
+    channel.queue_declare(queue=model_queue)
 
     log.info('Queues declared')
 
@@ -30,6 +30,7 @@ def main():
 
         log.info("body:\n ", message)
 
+        message.set_inference_service_id(1)
         # Predict result and set the info in the message
         image_path = message["imageInfo"]["path"]
         result, result_timestamp = predict_result(image_path)
@@ -48,11 +49,11 @@ def main():
             routing_key=comms_queue,
             body=json_message,
         )
-        log.info('Sent message to ' + image_acq_queue)
+        log.info('Sent message to ' + model_queue)
 
     # Consume messages from the image_acquisition_queue
     channel.basic_consume(
-        queue=image_acq_queue, on_message_callback=model_callback, auto_ack=True
+        queue=model_queue, on_message_callback=model_callback, auto_ack=True
     )
 
     log.info(' [*] Waiting for messages. To exit press CTRL+C')

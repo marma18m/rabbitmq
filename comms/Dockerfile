@@ -4,9 +4,9 @@ WORKDIR /app
 
 RUN pip install --upgrade pip
 
-COPY comms/comms.py comms.py
+COPY comms/ .
 COPY schemas ./schemas
-COPY comms/requirements.txt requirements.txt
+
 
 RUN pip install -r requirements.txt
 

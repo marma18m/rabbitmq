@@ -4,9 +4,8 @@ WORKDIR /app
 
 RUN pip install --upgrade pip
 
-COPY model_inference/model_inference.py model_inference.py
+COPY model_inference/ .
 COPY schemas ./schemas
-COPY model_inference/requirements.txt requirements.txt
 
 RUN pip install -r requirements.txt
 

@@ -1,39 +1,35 @@
 import pika, sys, os
-from messages.output import test_pb2
+from schemas.message import MessageJSON
+from comms_utils import extract_comms_action, take_action
+import logging
+
+log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
 
 
 def main():
+
+    # RabbitMQ Connection
     connection = pika.BlockingConnection(
         pika.ConnectionParameters(host='rabbitmq')
     )
     channel = connection.channel()
 
-    image_acq_queue = 'image_acquisition_queue'
-    ram_volume_queue = 'ram_volume_queue'
+    comms_queue = 'communications_queue'
+    channel.queue_declare(queue=comms_queue)
+    log.info('Queues declared')
 
-    channel.queue_declare(queue=image_acq_queue)
-    channel.queue_declare(queue=ram_volume_queue)
+    def comms_callback(ch, method, properties, body):
+        log.info("Results received: ")
+        message = MessageJSON()
+        message.parse_from_string(body)
+        log.info("body:\n ", message)
 
-    def image_callback(ch, method, properties, body):
-        print("\nReceived: ")
-        message = test_pb2.ImageAcquisition()
-        message.ParseFromString(body)
-
-        message.timestamp = 1715605786
-        message.image_location = 'new_path/to/image'
-
-        print("\nbody:\n ", message)
-
-        # Publish the received message to the other queue
-        channel.basic_publish(
-            exchange='',
-            routing_key=ram_volume_queue,
-            body=message.SerializeToString(),
-        )
-        print('Sent message to ' + ram_volume_queue)
+        action = extract_comms_action(message)
+        take_action(action)
 
     channel.basic_consume(
-        queue=image_acq_queue, on_message_callback=image_callback, auto_ack=True
+        queue=comms_queue, on_message_callback=comms_callback, auto_ack=True
     )
 
     print(' [*] Waiting for messages. To exit press CTRL+C')
