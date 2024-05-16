@@ -1,5 +1,6 @@
 import pika, sys, os
 import time
+import json
 from schemas.message import MessageJSON
 
 while True:
@@ -10,6 +11,9 @@ while True:
     msg.set_timestamp(int(time.time()))
     msg.set_acquisition_device_info(1, 'baumer_camera')
     msg.set_image_info(1, 1, '/path/to/image')
+
+    # Serialize the message to a JSON formatted string
+    json_message = json.dumps(msg.get_message())
 
     # RabbitMQ Connection
     connection = pika.BlockingConnection(
@@ -22,7 +26,7 @@ while True:
     channel.basic_publish(
         exchange='',
         routing_key='image_acquisition_queue',
-        body=msg,
+        body=json_message,
     )
     print('Sent message to RabbitMQ')
 
