@@ -5,7 +5,7 @@ WORKDIR /app
 RUN pip install --upgrade pip
 
 COPY image_acquisition/image_acq.py image_acq.py
-COPY messages ./messages
+COPY schemas ./schemas
 COPY image_acquisition/requirements.txt requirements.txt
 
 RUN pip install -r requirements.txt

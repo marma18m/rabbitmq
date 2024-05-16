@@ -1,6 +1,4 @@
 import pika, sys, os
-from messages.output import test_pb2
-from messages.output import comms_pb2
 
 
 def main():

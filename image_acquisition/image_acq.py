@@ -1,18 +1,15 @@
-import sys
-import os
-import pika
+import pika, sys, os
 import time
-from messages.output import test_pb2
+from schemas.message import MessageJSON
 
 while True:
-    # Create a message
-    message = test_pb2.ImageAcquisition()
+    # Initialize json message
+    msg = MessageJSON()
 
-    # Set the message fields
-    message.timestamp = 1715605786
-    message.image_location = 'path/to/image'
-    message.camera_specs.camera_spec_1 = 'Camera Spec 1'
-    message.camera_specs.camera_spec_2 = 2
+    # set timestamp current unix timestamp
+    msg.set_timestamp(int(time.time()))
+    msg.set_acquisition_device_info(1, 'baumer_camera')
+    msg.set_image_info(1, 1, '/path/to/image')
 
     # RabbitMQ Connection
     connection = pika.BlockingConnection(
@@ -25,7 +22,7 @@ while True:
     channel.basic_publish(
         exchange='',
         routing_key='image_acquisition_queue',
-        body=message.SerializeToString(),
+        body=msg,
     )
     print('Sent message to RabbitMQ')
 
