@@ -6,6 +6,7 @@ RUN pip install --upgrade pip
 
 COPY comms/ .
 COPY schemas ./schemas
+COPY requirements.txt requirements.txt
 
 
 RUN pip install -r requirements.txt
