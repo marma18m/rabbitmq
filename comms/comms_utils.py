@@ -1,7 +1,7 @@
 import logging
 import random
 
-log = logging.get_logger(__name__)
+log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
 

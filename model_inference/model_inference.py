@@ -25,23 +25,21 @@ def main():
 
     def model_callback(ch, method, properties, body):
         log.info("Image received: ")
-        message = MessageJSON()
-        message.parse_from_string(body)
+        msg = MessageJSON()
+        msg.parse_from_string(body)
 
-        log.info("body:\n ", message)
+        log.info("body:\n ", msg)
 
-        message.set_inference_service_id(1)
+        msg.set_inference_service_id(1)
         # Predict result and set the info in the message
-        image_path = message["imageInfo"]["path"]
+        image_path = msg.message["imageInfo"]["path"]
         result, result_timestamp = predict_result(image_path)
         result_path = f'/path/to/result/{result}'
         comms_result_path = f'/path/to/comms/result/{result}'
-        message.set_result_info(
-            result_timestamp, result_path, comms_result_path
-        )
+        msg.set_result_info(result_timestamp, result_path, comms_result_path)
 
         # Serialize the message to a JSON formatted string
-        json_message = json.dumps(message.get_message())
+        json_message = json.dumps(msg.get_message())
 
         # Publish the received message to the comms queue
         channel.basic_publish(
