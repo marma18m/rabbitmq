@@ -1,10 +1,11 @@
+import json
 import pika, sys, os
 from schemas.message import MessageJSON
 from comms_utils import extract_comms_action, take_action
 import logging
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
+log.setLevel(logging.WARNING)
 
 
 def main():
@@ -17,13 +18,13 @@ def main():
 
     comms_queue = 'communications_queue'
     channel.queue_declare(queue=comms_queue)
-    log.info('Queues declared')
+    log.warning('Queues declared')
 
     def comms_callback(ch, method, properties, body):
-        log.info("Results received: ")
+        log.warning("Results received: ")
         message = MessageJSON()
         message.parse_from_string(body)
-        log.info("body:\n ", message)
+        log.warning("body:\n " + json.dumps(message.get_message(), indent=4))
 
         action = extract_comms_action(message)
         take_action(action)
@@ -32,7 +33,7 @@ def main():
         queue=comms_queue, on_message_callback=comms_callback, auto_ack=True
     )
 
-    print(' [*] Waiting for messages. To exit press CTRL+C')
+    log.warning(' [*] Waiting for messages. To exit press CTRL+C')
     channel.start_consuming()
 
 

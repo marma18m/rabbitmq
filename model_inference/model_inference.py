@@ -5,7 +5,7 @@ import logging
 import json
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
+log.setLevel(logging.WARNING)
 
 
 def main():
@@ -21,14 +21,14 @@ def main():
     channel.queue_declare(queue=comms_queue)
     channel.queue_declare(queue=model_queue)
 
-    log.info('Queues declared')
+    log.warning('Queues declared')
 
     def model_callback(ch, method, properties, body):
-        log.info("Image received: ")
+        log.warning("Image received: ")
         msg = MessageJSON()
         msg.parse_from_string(body)
 
-        log.info("body:\n ", msg)
+        log.warning("body:\n " + json.dumps(msg.get_message(), indent=4))
 
         msg.set_inference_service_id(1)
         # Predict result and set the info in the message
@@ -47,14 +47,14 @@ def main():
             routing_key=comms_queue,
             body=json_message,
         )
-        log.info('Sent message to ' + model_queue)
+        log.warning('Sent message to ' + comms_queue)
 
     # Consume messages from the image_acquisition_queue
     channel.basic_consume(
         queue=model_queue, on_message_callback=model_callback, auto_ack=True
     )
 
-    log.info(' [*] Waiting for messages. To exit press CTRL+C')
+    log.warning(' [*] Waiting for messages. To exit press CTRL+C')
     channel.start_consuming()
 
 

@@ -5,10 +5,10 @@ from schemas.message import MessageJSON
 import logging
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
+log.setLevel(logging.WARNING)
 
 while True:
-    log.info('Writing image acquisition info...')
+    log.warning('Writing image acquisition info...')
     # Initialize json message
     msg = MessageJSON()
 
@@ -30,7 +30,7 @@ while True:
     channel = connection.channel()
     channel.queue_declare(queue=model_queue)
 
-    log.info('Sending image to RabbitMQ...')
+    log.warning('Sending image to RabbitMQ...')
     # Send to RabbitMQ
     channel.basic_publish(
         exchange='',
@@ -38,7 +38,7 @@ while True:
         body=json_message,
     )
 
-    log.info('Image sent')
+    log.warning('Image sent')
 
     connection.close()
 
