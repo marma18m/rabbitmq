@@ -20,9 +20,11 @@ def main():
     model_queue = 'model_queue'
     results_queue = 'results_queue'
     comms_queue = 'communications_queue'
+    inference_config_queue = 'inference_config_queue'
     channel.queue_declare(queue=comms_queue)
     channel.queue_declare(queue=results_queue)
     channel.queue_declare(queue=model_queue)
+    channel.queue_declare(queue=inference_config_queue)
 
     log.warning('Queues declared')
 
@@ -58,8 +60,8 @@ def main():
         )
         log.warning('Sent message to ' + results_queue)
 
-    def comms_callback(ch, method, properties, body):
-        log.warning("Comms message received: ")
+    def inference_config_callback(ch, method, properties, body):
+        log.warning("Comms message received: + " + body)
 
     # Consume messages from the image_acquisition_queue
     channel.basic_consume(
@@ -67,7 +69,9 @@ def main():
     )
     # Consume messages from the image_acquisition_queue
     channel.basic_consume(
-        queue=comms_queue, on_message_callback=comms_callback, auto_ack=True
+        queue=inference_config_queue,
+        on_message_callback=inference_config_callback,
+        auto_ack=True,
     )
 
     log.warning(' [*] Waiting for messages. To exit press CTRL+C')
