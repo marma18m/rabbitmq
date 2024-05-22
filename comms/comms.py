@@ -21,21 +21,36 @@ def main():
     # Declare the queues yo want to use
     comms_queue = 'communications_queue'
     image_acq_queue = 'image_acquisition_queue'
-    channel.queue_declare(queue=image_acq_queue)
+    inference_config_queue = 'inference_config_queue'
     channel.queue_declare(queue=comms_queue)
+    channel.queue_declare(queue=image_acq_queue)
+    channel.queue_declare(queue=inference_config_queue)
     log.warning('Queues declared')
 
     # Build message to publish
-    msg = CommsMessageJSON()
-    msg.set_timestamp(int(time.time()))
+    img_msg = CommsMessageJSON()
+    img_msg.set_timestamp(int(time.time()))
+
+    # Build message to publish
+    inference_msg = CommsMessageJSON()
+    inference_msg.set_timestamp(int(time.time()))
 
     # Example of a Trigger message
-    msg.set_tag('Trigger')
-    msg.set_value(1)
+    img_msg.set_tag('Trigger')
+    img_msg.set_value(1)
     channel.basic_publish(
         exchange='',
         routing_key=image_acq_queue,
-        body=json.dumps(msg.get_message()),
+        body=json.dumps(img_msg.get_message()),
+    )
+
+    # Example of a LoadRecipe message
+    inference_msg.set_tag('LoadRecipe')
+    inference_msg.set_value(1)
+    channel.basic_publish(
+        exchange='',
+        routing_key=inference_config_queue,
+        body=json.dumps(inference_msg.get_message()),
     )
 
     # Method to handle the message received
