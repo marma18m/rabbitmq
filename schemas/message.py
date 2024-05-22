@@ -13,7 +13,6 @@ class MessageJSON:
             "ResultInfo": {
                 "resultTimestamp": None,
                 "resultPath": None,
-                "commsResultPath": None,
                 "imageWithGraphicsPath": None,
             },
         }
@@ -37,12 +36,10 @@ class MessageJSON:
         self,
         resultTimestamp,
         resultPath,
-        commsResultPath,
         imageWithGraphicsPath: Optional[str] = None,
     ):
         self.message["ResultInfo"]["resultTimestamp"] = resultTimestamp
         self.message["ResultInfo"]["resultPath"] = resultPath
-        self.message["ResultInfo"]["commsResultPath"] = commsResultPath
         self.message["ResultInfo"][
             "imageWithGraphicsPath"
         ] = imageWithGraphicsPath
@@ -68,7 +65,6 @@ class Image(BaseModel):
 class ResultAnalysis(BaseModel):
     resultTimestamp: int
     resultPath: str
-    commsResultPath: str
     imageWithGraphicsPath: str
 
 
