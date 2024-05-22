@@ -5,7 +5,7 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.WARNING)
 
 
-def extract_comms_action(message):
+def extract_results_action(message):
     # Extract action from results
     log.warning(f"Extracting action from results: {message}")
     # setting action to be OK araound 80% of the time
