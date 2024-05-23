@@ -13,27 +13,38 @@ services:
     networks:
       - rabbitnet
   
-  receiver:
+  image_acquisition:
     build:
-      context: ./receiver
-      dockerfile: Dockerfile
-    container_name: receiver
+      context: ./
+      dockerfile: image_acquisition/Dockerfile
+    container_name: image_acquisition
     depends_on:
       rabbitmq:
         condition: service_healthy
     networks:
       - rabbitnet
     user: root
-    command: [python receiver.py"]
 
-  sender:
+  model_inference:
     build:
-      context: ./sender
-      dockerfile: Dockerfile
-    container_name: sender
+      context: ./
+      dockerfile: model_inference/Dockerfile
+    container_name: model_inference
     depends_on:
-      receiver:
-          condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - rabbitnet
+    user: root
+  
+  comms:
+    build:
+      context: ./
+      dockerfile: comms/Dockerfile
+    container_name: comms
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     networks:
       - rabbitnet
     user: root

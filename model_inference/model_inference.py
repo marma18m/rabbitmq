@@ -61,7 +61,12 @@ def main():
         log.warning('Sent message to ' + results_queue)
 
     def inference_config_callback(ch, method, properties, body):
-        log.warning("Comms message received: + " + body)
+        comms_message = CommsMessageJSON()
+        comms_message.parse_from_string(body)
+        log.warning(
+            "Comms message received:"
+            + json.dumps(comms_message.get_message(), indent=4)
+        )
 
     # Consume messages from the image_acquisition_queue
     channel.basic_consume(
